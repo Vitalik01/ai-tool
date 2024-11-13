@@ -15,7 +15,7 @@ This project consists of a backend and a frontend, where the backend is built us
 
 ### Step 1: Clone repository
 
-Start by cloning the repository to your local machine:
+1.  Start by cloning the repository to your local machine:
 
 git clone https://github.com/Vitalik01/ai-tool
 cd ai-tool
