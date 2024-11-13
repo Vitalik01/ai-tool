@@ -77,24 +77,32 @@ def interact_with_anthropic(system_prompt, user_data):
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json'
     }
+
     payload = {
-        'model': 'claude-1', 
-        'prompt': f'{system_prompt}\n\n{user_data}',
-        'max_tokens_to_sample': 1024,
+        'model': 'claude-3-5-sonnet-20241022',
+        'system': system_prompt,
+        'messages': [
+            {
+                'role': 'user',
+                'content': user_data
+            }
+        ],
+        'max_tokens': 150,
     }
     
     try:
-        response = requests.post('https://api.anthropic.com/v1/complete', json=payload, headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as http_err:
-        raise Exception(f"Anthropic API error occurred: {http_err}")
-    except requests.exceptions.RequestException as req_err:
-        raise Exception(f"Network error occurred while connecting to Anthropic API: {req_err}")
+        response = requests.post('https://api.anthropic.com/v1/messages', json=payload, headers=headers)
+        response_data = response.json()
+        
+        content = response_data.get('content', [])
+        if content:
+            return content[0].get('text', 'No response available')
+        else:
+            return 'No content available'
     
-    if response.status_code == 200:
-        return response.json().get('completion', 'No response available')
-    else:
-        raise Exception(f"Anthropic API request failed with status code {response.status_code}: {response.text}")
-
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Anthropic API request failed: {str(e)}")
+    except ValueError as e:
+        raise Exception(f"Failed to parse response JSON: {str(e)}")
 if __name__ == '__main__':
     app.run(debug=True)
